@@ -9,7 +9,7 @@
 // character, so the file holds the letter and nothing else: no trailing
 // newline, no gloss, no punctuation.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const LETTER = "Z";
@@ -30,3 +30,15 @@ const outputPath = join(outputDir, OUTPUT_FILE);
 
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, LETTER, "utf8");
+
+// Self-verification: read the file back and confirm it holds exactly the
+// one letter, byte for byte. The gate counts characters, so a stray newline
+// or extra byte here would fail the entry; fail loudly instead.
+const written = readFileSync(outputPath, "utf8");
+if (written !== LETTER) {
+  throw new Error(
+    `Verification failed: expected exactly ${JSON.stringify(LETTER)}, got ${JSON.stringify(written)}`,
+  );
+}
+
+console.log(`Wrote entry ${JSON.stringify(LETTER)} to ${outputPath}`);
